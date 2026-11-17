@@ -1,13 +1,13 @@
 # C++ AI Inference & GPU Acceleration Lab
 
 **Main application:** C++ Local LLM Inference Workbench  
-**Current milestone:** Phase 02 — Building a CLI Application
+**Current milestone:** Phase 01 — Project Setup & Development Environment
 
 ## Project objective
 
-This repository is being developed incrementally into a C++ application for local large-language-model inference. Planned development includes inference-runtime integration, CPU and GPU execution, benchmarking, and CUDA experiments.
+This repository will grow incrementally into a C++ application for local large-language-model inference. Planned development includes inference-runtime integration, CPU and GPU execution, benchmarking, and CUDA experiments.
 
-The current application provides a small interactive command-line interface (CLI). It supports `help`, `status`, and `exit`. **No model, inference runtime, CUDA code, or external library is included at this stage.** Future Phases should extend this repository while preserving its project identity and established engineering decisions.
+The current Phase establishes the build environment and a small executable only. **No model, inference runtime, CUDA code, or external library is included at this stage.** Future Phases should extend this repository while preserving its project identity and existing engineering decisions.
 
 ## Prerequisites
 
@@ -47,21 +47,20 @@ cpp-ai-inference-gpu-lab/
 ├── src/
 │   └── main.cpp
 └── docs/
-    ├── Phase-01-setup.md
-    └── Phase-02-cli.md
+    └── Phase-01-setup.md
 ```
 
-The repository contains only the files needed by the completed Phases. New directories and modules will be introduced when later features require them.
+The repository starts with only the files needed for this milestone. New directories and modules will be introduced when later features require them.
 
 ## Configure
 
-Run this command from the project root:
+Run these commands from the project root:
 
 ```sh
 cmake -S . -B build
 ```
 
-CMake detects the available toolchain and generates build files for its selected generator. The command is intentionally portable and does not hardcode compiler paths.
+CMake detects the available toolchain and generates build files for its selected generator. You can explicitly select a generator when needed, but the default command above is intentionally portable.
 
 ## Build
 
@@ -73,7 +72,9 @@ The `--config Release` option supports multi-configuration generators such as Vi
 
 ## Run
 
-The executable target is named `cpp_local_llm_inference_workbench` (with `.exe` on Windows). Its exact output directory depends on the CMake generator and platform.
+The executable is named `cpp_local_llm_inference_workbench` (with `.exe` on Windows). Its exact output directory depends on the CMake generator and platform.
+
+Typical commands after a successful build:
 
 **Windows PowerShell — Visual Studio generator:**
 
@@ -95,62 +96,32 @@ The executable target is named `cpp_local_llm_inference_workbench` (with `.exe` 
 
 For a different generator or a custom configuration, locate the executable under the generated `build` directory and run that file.
 
-## Using the CLI
-
-After launching the application, enter a command at the `>` prompt. Commands are case-insensitive, and leading or trailing whitespace is ignored.
-
-| Command | Description |
-| --- | --- |
-| `help` | Show available commands and their descriptions. |
-| `status` | Display the application name, project, development stage, and inference-backend status. |
-| `exit` | Exit the application gracefully. |
-
-Empty input is ignored. An unsupported command displays an error and suggests using `help`. If the input stream reaches EOF (for example, when standard input is closed), the application shuts down gracefully.
-
-Example interaction:
+## Expected output
 
 ```text
-Welcome to C++ Local LLM Inference Workbench!
-
-Available commands:
-- help
-- status
-- exit
-
-> help
-
-Available commands:
-- help    Show available commands
-- status  Display application information
-- exit    Exit the application
-
-> status
-
-Application: C++ Local LLM Inference Workbench
+===============================================
+C++ Local LLM Inference Workbench
 Project: C++ AI Inference & GPU Acceleration Lab
-Development stage: Phase 02 - Building a CLI Application
-Status: Initialized
-Inference backend: Not integrated yet
-
-> exit
-
-Shutting down application...
+Development stage: Phase 01 - Project Setup & Development Environment
+Environment status: Initialized
+Inference runtime: Not integrated yet
+===============================================
 ```
+
+The program exits with `EXIT_SUCCESS` after printing this status.
 
 ## Initialize Git
 
-Run the following from the project root if this repository has not already been initialized:
+Run the following from the project root:
 
 ```sh
 git init
-git add CMakeLists.txt README.md .gitignore src/main.cpp docs/Phase-01-setup.md docs/Phase-02-cli.md
-git commit -m "Build interactive CLI application"
+git add CMakeLists.txt README.md .gitignore src/main.cpp docs/Phase-01-setup.md
+git commit -m "Initial project setup"
 ```
 
 Build output is ignored by `.gitignore`. The distributable project ZIP intentionally excludes the `.git` directory.
 
-## Engineering decisions and Phase documentation
+## Initial engineering decisions
 
-The initial tooling and architecture decisions are documented in [docs/Phase-01-setup.md](docs/Phase-01-setup.md). Phase 02's function responsibilities, input handling, command flow, and design trade-offs are documented in [docs/Phase-02-cli.md](docs/Phase-02-cli.md).
-
-The project retains its CMake-based build, C++17 requirement, compiler warning settings, and single executable target. CLI functionality remains in `src/main.cpp` until later requirements justify splitting the implementation into additional source files or modules.
+The rationale for the initial tooling and architecture is documented in [docs/Phase-01-setup.md](docs/Phase-01-setup.md). In summary, this milestone uses CMake, requires standard C++17, and builds one executable without introducing future components prematurely.
