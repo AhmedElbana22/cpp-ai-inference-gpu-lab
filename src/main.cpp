@@ -1,15 +1,24 @@
+#include "workbench/application.hpp"
+#include "workbench/mock_inference_backend.hpp"
+
 #include <cstdlib>
-#include <iostream>
 
 int main()
 {
-    std::cout << "===============================================\n";
-    std::cout << "C++ Local LLM Inference Workbench\n";
-    std::cout << "Project: C++ AI Inference & GPU Acceleration Lab\n";
-    std::cout << "Development stage: Session 01 - Project Setup & Development Environment\n";
-    std::cout << "Environment status: Initialized\n";
-    std::cout << "Inference runtime: Not integrated yet\n";
-    std::cout << "===============================================\n";
+    // The composition root creates concrete components and injects them into
+    // the application. Application itself only knows the InferenceBackend API.
+    workbench::Cli cli;
+    workbench::MockInferenceBackend backend;
 
+    const workbench::ModelConfig model_config{};
+    const workbench::GenerationConfig generation_config{};
+
+    workbench::Application application(
+        cli,
+        backend,
+        model_config,
+        generation_config);
+
+    application.run();
     return EXIT_SUCCESS;
 }
