@@ -1,13 +1,28 @@
 # C++ AI Inference & GPU Acceleration Lab
 
 **Main application:** C++ Local LLM Inference Workbench  
-**Current milestone:** Phase 02 — Building a CLI Application
+**Current milestone:** Phase 04 - Application Architecture & Abstraction
 
 ## Project objective
 
 This repository is being developed incrementally into a C++ application for local large-language-model inference. Planned development includes inference-runtime integration, CPU and GPU execution, benchmarking, and CUDA experiments.
 
-The current application provides a small interactive command-line interface (CLI). It supports `help`, `status`, and `exit`. **No model, inference runtime, CUDA code, or external library is included at this stage.** Future Phases should extend this repository while preserving its project identity and established engineering decisions.
+The application now has a small interactive command-line interface (CLI), reusable application data contracts, and a modular architecture with CLI, application, and inference-backend responsibilities. The CLI supports `help`, `status`, and `exit`. The application depends on the `InferenceBackend` abstraction and receives a `MockInferenceBackend` implementation through dependency injection. **No model is loaded and no real inference runtime, CUDA code, or external library is included at this stage.** Future Phases should extend this repository while preserving its project identity and established engineering decisions.
+
+## Current data models
+
+The data-only structures are declared in `include/workbench/models.hpp` inside the `workbench` namespace:
+
+| Structure | Responsibility |
+| --- | --- |
+| `ModelConfig` | Model name, filesystem path, and context size. Empty name and path mean no model is configured. |
+| `GenerationConfig` | Maximum new tokens, temperature, and top-p settings. Defaults are illustrative and configurable, not universal recommendations. |
+| `InferenceRequest` | Prompt plus a composed `GenerationConfig`. |
+| `InferenceResponse` | Generated text and prompt/generated token counts for a future inference result. |
+
+Phase 04 adds `InferenceBackend`, an abstract interface for backend identity and runtime readiness, plus `MockInferenceBackend`, a placeholder that reports that real inference is not integrated and not ready. The `Application` coordinates commands through the interface, while `Cli` owns terminal input and output. The mock does not load a model or generate responses.
+
+The structures are passive data contracts. They do not load models, validate runtime-specific settings, tokenize prompts, or perform inference. The existing `status` command uses default `ModelConfig` and `GenerationConfig` values to report that no model is configured, the default context size, and the illustrative generation settings. It does not claim that a model has been loaded or that text has been generated.
 
 ## Prerequisites
 
@@ -44,11 +59,24 @@ cpp-ai-inference-gpu-lab/
 ├── CMakeLists.txt
 ├── README.md
 ├── .gitignore
+├── include/
+│   └── workbench/
+│       ├── models.hpp
+│       ├── application.hpp
+│       ├── cli.hpp
+│       ├── inference_backend.hpp
+│       └── mock_inference_backend.hpp
 ├── src/
-│   └── main.cpp
+│   ├── main.cpp
+│   ├── application.cpp
+│   ├── cli.cpp
+│   └── backends/
+│       └── mock_inference_backend.cpp
 └── docs/
     ├── Phase-01-setup.md
-    └── Phase-02-cli.md
+    ├── Phase-02-cli.md
+    ├── Phase-03-data-modeling.md
+    └── Phase-04-architecture.md
 ```
 
 The repository contains only the files needed by the completed Phases. New directories and modules will be introduced when later features require them.
@@ -102,7 +130,7 @@ After launching the application, enter a command at the `>` prompt. Commands are
 | Command | Description |
 | --- | --- |
 | `help` | Show available commands and their descriptions. |
-| `status` | Display the application name, project, development stage, and inference-backend status. |
+| `status` | Display application identity, development stage, model-configuration state, default context size, illustrative generation settings, selected backend name, inference readiness, and real-runtime integration status. |
 | `exit` | Exit the application gracefully. |
 
 Empty input is ignored. An unsupported command displays an error and suggests using `help`. If the input stream reaches EOF (for example, when standard input is closed), the application shuts down gracefully.
@@ -128,9 +156,19 @@ Available commands:
 
 Application: C++ Local LLM Inference Workbench
 Project: C++ AI Inference & GPU Acceleration Lab
-Development stage: Phase 02 - Building a CLI Application
+Development stage: Phase 04 - Application Architecture & Abstraction
 Status: Initialized
-Inference backend: Not integrated yet
+Model configured: No
+Model name: Not configured
+Model path: Not configured
+Default context size: 2048 tokens
+Illustrative generation defaults:
+- max_new_tokens: 128
+- temperature: 0.7
+- top_p: 0.9
+Backend: MockInferenceBackend
+Inference readiness: Not ready
+Real inference runtime: Not integrated
 
 > exit
 
@@ -143,14 +181,14 @@ Run the following from the project root if this repository has not already been 
 
 ```sh
 git init
-git add CMakeLists.txt README.md .gitignore src/main.cpp docs/Phase-01-setup.md docs/Phase-02-cli.md
-git commit -m "Build interactive CLI application"
+git add CMakeLists.txt README.md .gitignore include src docs
+git commit -m "Introduce application architecture and backend abstraction"
 ```
 
 Build output is ignored by `.gitignore`. The distributable project ZIP intentionally excludes the `.git` directory.
 
 ## Engineering decisions and Phase documentation
 
-The initial tooling and architecture decisions are documented in [docs/Phase-01-setup.md](docs/Phase-01-setup.md). Phase 02's function responsibilities, input handling, command flow, and design trade-offs are documented in [docs/Phase-02-cli.md](docs/Phase-02-cli.md).
+The initial tooling and architecture decisions are documented in [docs/Phase-01-setup.md](docs/Phase-01-setup.md). Phase 02's function responsibilities, input handling, command flow, and design trade-offs are documented in [docs/Phase-02-cli.md](docs/Phase-02-cli.md). Phase 03's data contracts, type choices, composition, const references, and extension trade-offs are documented in [docs/Phase-03-data-modeling.md](docs/Phase-03-data-modeling.md). Phase 04's layer responsibilities, backend abstraction, polymorphism, dependency injection, and alternatives are documented in [docs/Phase-04-architecture.md](docs/Phase-04-architecture.md).
 
-The project retains its CMake-based build, C++17 requirement, compiler warning settings, and single executable target. CLI functionality remains in `src/main.cpp` until later requirements justify splitting the implementation into additional source files or modules.
+The project retains its CMake-based build, C++17 requirement, compiler warning settings, and single executable target. The CLI is implemented in `src/cli.cpp`, command coordination is handled by `src/application.cpp`, and `src/main.cpp` is the composition root. The four passive data structures remain in `models.hpp`. The application depends on `InferenceBackend`, not on the mock implementation. No Python, PyTorch, Transformers, CUDA, llama.cpp, model files, inference libraries, or third-party C++ dependencies are introduced.
